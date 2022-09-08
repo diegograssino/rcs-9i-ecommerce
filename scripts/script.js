@@ -1,66 +1,3 @@
-const PRODUCTS = [
-  {
-    id: 'product1',
-    name: 'CR90 corvette',
-    manufacturer:
-      'Corellian Engineering Corporation',
-    cost_in_credits: 350,
-  },
-  {
-    id: 'product2',
-    name: 'Star Destroyer',
-    manufacturer: 'Kuat Drive Yards',
-    cost_in_credits: 150,
-  },
-  {
-    id: 'product3',
-    name: 'Sentinel-class landing craft',
-    manufacturer:
-      'Sienar Fleet Systems, Cyngus Spaceworks',
-    cost_in_credits: 24,
-  },
-  {
-    id: 'product4',
-    name: 'Death Star',
-    manufacturer:
-      'Imperial Department of Military Research, Sienar Fleet Systems',
-    cost_in_credits: 500,
-  },
-  {
-    id: 'product5',
-    name: 'Millennium Falcon',
-    manufacturer:
-      'Corellian Engineering Corporation',
-    cost_in_credits: 75,
-  },
-  {
-    id: 'product6',
-    name: 'Executor',
-    manufacturer:
-      'Kuat Drive Yards, Fondor Shipyards',
-    cost_in_credits: 35,
-  },
-  {
-    id: 'product7',
-    name: 'Y-wing',
-    manufacturer: 'Koensayr Manufacturing',
-
-    cost_in_credits: 22,
-  },
-  {
-    id: 'product8',
-    name: 'X-wing',
-    manufacturer: 'Incom Corporation',
-    cost_in_credits: 15,
-  },
-  {
-    id: 'product9',
-    name: 'TIE Advanced x1',
-    manufacturer: 'Sienar Fleet Systems',
-    cost_in_credits: 30,
-  },
-];
-
 // 1- Seleccionar los elementos con los que voy a trabajar
 const catalogue =
   document.getElementById('catalogue');
@@ -72,7 +9,10 @@ const clear = document
   .addEventListener('click', () => clearCart());
 
 // 2- Inicializabamos todo lo que haga falta.
-let cartProducts = [];
+let cartProducts =
+  JSON.parse(
+    localStorage.getItem('cartProducts')
+  ) || [];
 
 let productsFiltered = PRODUCTS;
 
@@ -186,6 +126,25 @@ const renderCart = () => {
         del(cartProduct)
       );
   });
+
+  // Trabajo con el total de productos
+  let counter = 0;
+  for (let i = 0; i < cartProducts.length; i++) {
+    const q = cartProducts[i].q;
+    counter += q;
+  }
+  totalProducts.innerText = counter;
+
+  // Trabajo con el total en $ del carrito
+  let total = 0;
+  console.log(cartProducts);
+  for (let i = 0; i < cartProducts.length; i++) {
+    const t =
+      cartProducts[i].cost_in_credits *
+      cartProducts[i].q;
+    total += t;
+  }
+  totalPrice.innerText = total;
 };
 
 const buy = (p, q) => {
@@ -198,9 +157,19 @@ const buy = (p, q) => {
     const index = cartProducts.indexOf(p);
     // cartProducts[index].q = cartProducts[index].q + q
     cartProducts[index].q += q;
+    // Paralelamente a agregar al array, agrego al localstorage
+    localStorage.setItem(
+      'cartProducts',
+      JSON.stringify(cartProducts)
+    );
   } else {
     p.q = q;
     cartProducts.push(p);
+    // Paralelamente a agregar al array, agrego al localstorage
+    localStorage.setItem(
+      'cartProducts',
+      JSON.stringify(cartProducts)
+    );
   }
   // Actualizo los datos en el array (datos)
   renderCart();
@@ -210,12 +179,22 @@ const buy = (p, q) => {
 const del = p => {
   const index = cartProducts.indexOf(p);
   cartProducts.splice(index, 1);
+  // Paralelamente a agregar al array, agrego al localstorage
+  localStorage.setItem(
+    'cartProducts',
+    JSON.stringify(cartProducts)
+  );
   // Actualizo la UI, lo que se ve en pantalla
   renderCart();
 };
 
 const clearCart = () => {
   cartProducts = [];
+  // Paralelamente a agregar al array, agrego al localstorage
+  localStorage.setItem(
+    'cartProducts',
+    JSON.stringify(cartProducts)
+  );
   renderCart();
 };
 
